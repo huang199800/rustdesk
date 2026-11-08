@@ -2493,6 +2493,18 @@ pub fn rustdesk_interval(i: Interval) -> ThrottledInterval {
 }
 
 pub fn load_custom_client() {
+    // Self-hosted defaults; saved user settings continue to take precedence.
+    {
+        let mut defaults = config::DEFAULT_SETTINGS.write().unwrap();
+        for (key, value) in [
+            ("custom-rendezvous-server", "rustdesk.hhse.top:21116"),
+            ("relay-server", "rustdesk.hhse.top:21117"),
+            ("api-server", "http://rustdesk.hhse.top:21114"),
+            ("key", "P1ItiYDiY6VrpQqQ0or3tMVzJETsnQ9sif9aYTAMMCI="),
+        ] {
+            defaults.entry(key.to_owned()).or_insert_with(|| value.to_owned());
+        }
+    }
     #[cfg(debug_assertions)]
     if let Ok(data) = std::fs::read_to_string("./custom.txt") {
         read_custom_client(data.trim());
@@ -3620,3 +3632,4 @@ mod tests {
         assert_eq!(decode_id_pk(&signed, &pk).unwrap(), (id, their_pk));
     }
 }
+
